@@ -1,13 +1,10 @@
 import os
 import logging
-import pytest
 import zarr
 import cProfile
 import numpy as np
 import scipy.stats
 import matplotlib.pyplot as plt
-
-from pathlib import Path
 
 from combined_age_score_stitched import combined_age_score
 from combined_age_score_spline import (
@@ -16,27 +13,6 @@ from combined_age_score_spline import (
     apply_spline_histogram_lut,
     combined_age_score_spline
 )
-
-
-# ---------------------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------------------
-@pytest.fixture
-def output_score_path() -> str:
-    return "histogram-rank-norm-test-data/T_SAVED_SCORES"
-
-
-@pytest.fixture
-def image_dir() -> str:
-    return "histogram-rank-norm-test-data\Images"
-
-
-@pytest.fixture
-def combined_score_path(tmp_path) -> Path:
-    combined_score_path = tmp_path / "combined_scores"
-    combined_score_path.mkdir()
-    logging.info("Combined scores saved here: %s", combined_score_path)
-    return combined_score_path
 
 
 # ---------------------------------------------------------------------------------------
