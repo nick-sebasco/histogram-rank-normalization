@@ -73,9 +73,8 @@ def build_histograms_and_threshold(
     for i, zarr_file in enumerate(score_mask_zarrs):
         print(f"[1/2] Building histogram from: {zarr_file} ({i+1}/{len(score_mask_zarrs)})")
 
-        # Load the score zarr
         zm = zarr.open(os.path.join(score_dir, zarr_file))
-        # Typically shape (H, W, 3, patches) => flatten channels to 1D
+
         ch0 = zm[:, :, 0, :].reshape(-1)
         ch1 = zm[:, :, 1, :].reshape(-1)
         ch2 = zm[:, :, 2, :].reshape(-1)
@@ -88,7 +87,7 @@ def build_histograms_and_threshold(
 
         # If threshold_method == "GaussianBlur", blur and use green channel
         if thresh_method == "GaussianBlur":
-            # Optionally, pad the image if smaller than the zarr shape
+            # Pad the image if smaller than the zarr shape
             H, W, _ = image.shape
             ZH, ZW = zm.shape[0], zm.shape[1]
             if H < ZH:

@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-
+import logging
 
 # ---------------------------------------------------------------------------------------
 # Fixtures
@@ -12,7 +12,7 @@ def output_score_path() -> str:
 
 @pytest.fixture
 def image_dir() -> str:
-    return "histogram-rank-norm-test-data\Images"
+    return "histogram-rank-norm-test-data/Images"
 
 
 @pytest.fixture
