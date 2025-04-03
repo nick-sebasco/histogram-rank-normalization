@@ -259,14 +259,15 @@ def apply_cmf_histogram_lut(
 
 
 def combined_age_score_cmf(
-    score_dir: str,
-    combined_score_dir: str,
+    output_score_path: str,
+    combined_score_path: str,
     image_dir: str,
     thresh_method: str = "GaussianBlur",
     thresh_param: int = 200,
     dist: Optional[scipy.stats.rv_continuous] = scipy.stats.norm,
     multiply_factor: int = 10000,
-    n_bins: int = 200000
+    n_bins: int = 200000,
+    **_
 ) -> None:
     """
     Main entry point for cmf-based histogram rank normalization.
@@ -275,8 +276,8 @@ def combined_age_score_cmf(
     2) Generate a cmf-based LUT mapping bin -> rank -> dist.ppf(rank).
     3) Re-open each .zarr file, map foreground pixel scores through the LUT, save results.
 
-    :param score_dir: Path to .zarr score files.
-    :param combined_score_dir: Output directory for normalized .zarr files.
+    :param output_score_path: Path to .zarr score files.
+    :param combined_score_path: Output directory for normalized .zarr files.
     :param image_dir: Path to corresponding threshold images.
     :param thresh_method: Threshold method ('GaussianBlur' only in this example).
     :param thresh_param: Threshold parameter value.
@@ -287,7 +288,7 @@ def combined_age_score_cmf(
     """
     # --- PASS 1: build histograms ---
     hist_ch0, hist_ch1, hist_ch2 = build_histograms_and_threshold(
-        score_dir=score_dir,
+        score_dir=output_score_path,
         image_dir=image_dir,
         thresh_method=thresh_method,
         thresh_param=thresh_param,
@@ -302,8 +303,8 @@ def combined_age_score_cmf(
 
     # --- PASS 2: apply LUT + save outputs ---
     apply_cmf_histogram_lut(
-        score_dir=score_dir,
-        output_dir=combined_score_dir,
+        score_dir=output_score_path,
+        output_dir=combined_score_path,
         image_dir=image_dir,
         lut0=lut0,
         lut1=lut1,

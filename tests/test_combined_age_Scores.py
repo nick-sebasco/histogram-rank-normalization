@@ -250,7 +250,10 @@ def test_visualization(tmp_path, output_score_path, image_dir, combined_score_pa
 
 # CMF Algorithm Tests
 # ---------------------------------------------------------------------------------------
-def test_sanity_cmf_histograms(output_score_path, image_dir):
+def test_sanity_cmf_histograms(
+    output_score_path,
+    image_dir
+):
     """
     Test that build_histograms_and_threshold returns histograms with the expected shape
     and that there is non-zero foreground data.
@@ -371,8 +374,8 @@ def test_combined_age_score_cmf(output_score_path, image_dir, combined_score_pat
     n_bins = 10000
     # Run the entire pipeline with the CMF-based normalization.
     combined_age_score_cmf(
-        score_dir=output_score_path,
-        combined_score_dir=str(combined_score_path),
+        output_score_path=output_score_path,
+        combined_score_path=str(combined_score_path),
         image_dir=image_dir,
         thresh_method="GaussianBlur",
         thresh_param=200,
@@ -402,8 +405,8 @@ def test_visualization_cmf(tmp_path, output_score_path, image_dir, combined_scor
     """
     # Increase histogram resolution for better spread.
     combined_age_score_cmf(
-        score_dir=output_score_path,
-        combined_score_dir=str(combined_score_path),
+        output_score_path=output_score_path,
+        combined_score_path=str(combined_score_path),
         image_dir=image_dir,
         thresh_method="GaussianBlur",
         thresh_param=200,
@@ -452,8 +455,8 @@ def test_profile_combined_age_score_cmf(
     n_bins = 10000
     # Run the entire pipeline with the CMF-based normalization.
     combined_age_score_cmf(
-        score_dir=output_score_path,
-        combined_score_dir=str(combined_score_path),
+        output_score_path=output_score_path,
+        combined_score_path=str(combined_score_path),
         image_dir=image_dir,
         thresh_method="GaussianBlur",
         thresh_param=200,
@@ -463,3 +466,42 @@ def test_profile_combined_age_score_cmf(
     profiler.disable()
     profiler.print_stats(sort='cumulative')
     logging.info("Finished.")
+
+
+def test_remove_non_tissue_pixels(output_score_path, image_dir, combined_score_path):
+    n_bins = 100_000
+    multiply_factor = 100_000
+    
+    # --- Run the CMF-based pipeline ---
+    combined_age_score_cmf(
+        output_score_path=output_score_path,
+        combined_score_path=str(combined_score_path),
+        image_dir=image_dir,
+        thresh_method="GaussianBlur",
+        thresh_param=200,
+        multiply_factor=multiply_factor,
+        n_bins=n_bins
+    )
+
+    output_files = list(Path(combined_score_path).glob("*_age_scores.zarr"))
+    # Verify that output files exist
+    assert len(output_files) > 0, "No output normalized files were generated."
+
+    sample_arr = zarr.open(str(output_files[0]))[:]
+    norm_flat = sample_arr.flatten()
+
+    # Only analyze non-zero pixels
+    nonzero_mask = (norm_flat != 0)
+    foreground_scores = norm_flat[nonzero_mask]
+
+    mean_norm = np.mean(foreground_scores)
+    std_norm = np.std(foreground_scores)
+    logging.info("CMF-normalized distribution (non-zero only): mean=%.3f, std=%.3f", mean_norm, std_norm)
+
+
+    # Only check that std_norm isn't degenerate:
+    assert len(foreground_scores) > 0, "No non-zero pixels found (check threshold)."
+    assert abs(mean_norm) < 1.0, f"Mean {mean_norm} is off."
+    assert 0.2 < std_norm < 2.0, f"Std {std_norm} is off."
+
+    # This passes, which means once we exclude non tissue pixels, distribution looks normal.

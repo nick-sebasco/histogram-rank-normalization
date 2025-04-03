@@ -9,7 +9,7 @@ https://thejacksonlaboratory.box.com/s/5wjknw1ow4uw3w1zql3yw0uxcqlti6de
 
 ## Tests
 ```
-py -3.8 -m pytest --log-cli-level=INFO -s .\tests\test_combined_age_scores.py
+py -3.8 -m pytest -s --log-cli-level=DEBUG -s .\tests\test_combined_age_scores.py
 ```
 
 ## Performance
