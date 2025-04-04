@@ -1,0 +1,4 @@
+histogram-rank-norm-test-data
+__pycache__
+.pytest*
+IGNORE_*

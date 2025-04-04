@@ -9,8 +9,35 @@ https://thejacksonlaboratory.box.com/s/5wjknw1ow4uw3w1zql3yw0uxcqlti6de
 
 ## Tests
 ```
-py -3.8 -m pytest --log-cli-level=INFO -s .\tests\test_combined_age_Scores.py
+py -3.8 -m pytest -s --log-cli-level=DEBUG -s .\tests\test_combined_age_scores.py
 ```
+
+## Performance
+
+Based on the profiling data:
+
+### CMF Method:
+
+    ~77,180 function calls
+
+    Total time: ~1.015 seconds
+
+### Spline Method (old method):
+
+    ~6,676,786 function calls
+
+    Total time: ~5.751 seconds
+
+### Comparison:
+
+Speed:
+The CMF method is roughly 5–6 times faster than the spline method. Lower number of function calls (77K vs. over 6.6M).
+
+Efficiency:
+The CMF approach uses vectorized operations for computing the cumulative mass function and applies the inverse CDF directly to create the lookup table. In contrast, the spline method relies on spline interpolation and has more overhead with many more function calls.
+
+Scalability:
+The vectorized, streamlined CMF method is more scalable to larger datasets. With fewer function calls and a simpler workflow, it can process larger image datasets more efficiently.
 
 ## TODO:
 
